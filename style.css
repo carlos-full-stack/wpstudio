@@ -1,0 +1,149 @@
+/*
+Theme Name: WP Studio
+Description: WP Studio
+Author: Carlos Martinez
+Author URI: https://wpstudio.es/
+Template: frost
+Version: 1.0.0
+*/
+
+/* -- Button -- */
+
+.wp-block-button.is-style-outline .wp-block-button__link:hover {
+  background-color: var(--wp--preset--color--cream-hover);
+}
+
+/* Shared layout for any icon button variant, e.g. is-style-icon-arrow, is-style-icon-* */
+.wp-block-button[class*="is-style-icon-"] .wp-block-button__link {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.wp-block-button[class*="is-style-icon-"] .wp-block-button__link::after {
+  background-color: currentColor;
+  content: "";
+  flex-shrink: 0;
+  height: 16px;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transition: transform 0.2s ease-in-out;
+  width: 16px;
+}
+
+.wp-block-button.is-style-icon-arrow .wp-block-button__link::after {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M2 8h11.5M9 3.5 13.5 8 9 12.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M2 8h11.5M9 3.5 13.5 8 9 12.5'/%3E%3C/svg%3E");
+}
+
+.wp-block-button.is-style-icon-arrow .wp-block-button__link:hover::after {
+  transform: translateX(4px);
+}
+
+/* -- List -- */
+
+.wp-block-list.is-style-check-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.wp-block-list.is-style-check-list li {
+  padding-left: 28px;
+  position: relative;
+}
+
+.wp-block-list.is-style-check-list li::before {
+  background-color: currentColor;
+  content: "";
+  height: 16px;
+  left: 0;
+  position: absolute;
+  top: 2px;
+  width: 16px;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M3 8.5 6.5 12 13 4.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.5'%3E%3Cpath d='M3 8.5 6.5 12 13 4.5'/%3E%3C/svg%3E");
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+/* -- Price Card -- */
+
+.wp-block-group.is-style-price-card {
+  background-color: var(--wp--preset--color--cream);
+  border: 1px solid var(--wp--preset--color--cream-hover);
+  border-radius: 20px;
+  position: relative;
+}
+
+.price-card-icon {
+  position: absolute;
+  right: var(--wp--custom--spacing--gap);
+  top: var(--wp--custom--spacing--gap);
+}
+
+.price-card-icon img {
+  display: block;
+  height: 40px;
+  width: 40px;
+}
+
+.price-card-badge {
+  border: 1px solid var(--wp--preset--color--cream-hover);
+  border-radius: 999px;
+  display: inline-block;
+  font-size: var(--wp--preset--font-size--x-small);
+  padding: 6px 14px;
+}
+
+/* -- Box Shadow -- */
+
+.is-style-shadow-accent {
+  box-shadow: var(--wp--preset--shadow--accent);
+}
+
+/* -- Circle -- */
+
+/* Add "is-circle" as an Additional CSS Class; combine with "is-style-shadow-*" for an optional shadow */
+.is-circle {
+  align-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  flex-shrink: 0;
+  font-family: var(--wp--preset--font-family--primary);
+  justify-content: center;
+  overflow: hidden;
+  width: clamp(48px, 8vw, 65px);
+}
+
+.is-circle > * {
+  line-height: 1;
+  margin: 0;
+}
+
+.is-circle svg {
+  height: 50%;
+  width: 50%;
+}
+
+/* Media Queries
+---------------------------------------- */
+
+@media only screen and (max-width: 600px) {
+  /* -- Button -- */
+
+  .wp-block-button .wp-block-button__link {
+    font-size: var(--wp--preset--font-size--x-small);
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
