@@ -39,12 +39,16 @@ function wpstudio_register_block_styles()
         'core/group' => array(
             'shadow-accent' => __('Accent', 'wpstudio'),
             'price-card' => __('Price Card', 'wpstudio'),
+            'border-accent' => __('Border Accent', 'wpstudio'),
         ),
         'core/list' => array(
             'check-list' => __('Check List', 'wpstudio'),
         ),
         'core/quote' => array(
             'shadow-accent' => __('Accent', 'wpstudio'),
+        ),
+        'core/details' => array(
+            'border-accent' => __('Border Accent', 'wpstudio'),
         ),
     );
 
@@ -63,49 +67,109 @@ function wpstudio_register_block_styles()
 add_action('init', 'wpstudio_register_block_styles');
 
 /**
- * ACF-powered shortcodes for the "servicio" custom post type.
- *
- * Placed as literal [shortcode] text inside pattern/query loop markup, they are
- * resolved by do_shortcode() when WordPress renders each post of the loop, so
- * they always read the fields of the post currently being rendered.
+ * Enqueue the vanilla JS that keeps the FAQ accordion exclusive (only one
+ * question open at a time). Native <details> has no such behaviour built in.
  *
  * @since 1.0.0
  */
-function wpstudio_register_acf_shortcodes()
+add_action('wp_enqueue_scripts', 'wpstudio_enqueue_faq_accordion_script');
+function wpstudio_enqueue_faq_accordion_script()
+{
+
+    wp_enqueue_script(
+        'wpstudio-faq-accordion',
+        get_stylesheet_directory_uri() . '/assets/js/faq-accordion.js',
+        array(),
+        wp_get_theme()->get('Version'),
+        true
+    );
+}
+
+/**
+ * [servicios_price_cards] -> loops the "diseno-web" CPT and renders a price
+ * card per post with its ACF fields (precio, caracteristica_1-4, icono, destacado).
+ * Can be dropped anywhere (shortcode block, widget, template) regardless of layout.
+ *
+ * @since 1.0.0
+ */
+function wpstudio_register_servicios_price_cards_shortcode()
+{
+    add_shortcode('servicios_price_cards', 'wpstudio_render_servicios_price_cards');
+}
+add_action('init', 'wpstudio_register_servicios_price_cards_shortcode');
+
+function wpstudio_render_servicios_price_cards()
 {
 
     // ACF must be active; fail silently otherwise (no fatal on sites without it).
     if (! function_exists('get_field')) {
-        return;
+        return '';
     }
 
-    // [acf_field name="precio"] -> raw text value of any ACF field on the current post.
-    add_shortcode('acf_field', function ($atts) {
-        $atts  = shortcode_atts(array('name' => ''), $atts, 'acf_field');
-        $value = $atts['name'] ? get_field($atts['name']) : '';
-        return is_scalar($value) ? esc_html($value) : '';
-    });
+    $servicios = get_posts(array(
+        'post_type'      => 'diseno-web',
+        'posts_per_page' => -1,
+        'orderby'        => 'menu_order',
+        'order'          => 'ASC',
+    ));
 
-    // [servicio_icono] -> the uploaded SVG/image for the current "servicio", or nothing.
-    add_shortcode('servicio_icono', function () {
-        $url = get_field('icono');
-        if (! $url) {
-            return '';
-        }
-        return sprintf('<img src="%s" alt="" width="40" height="40" loading="lazy" />', esc_url($url));
-    });
+    if (! $servicios) {
+        return '';
+    }
 
-    // [servicio_badge] -> "Más Popular" pill, only rendered when "destacado" is checked.
-    add_shortcode('servicio_badge', function () {
-        if (! get_field('destacado')) {
-            return '';
-        }
-        return sprintf('<span class="price-card-badge">%s</span>', esc_html__('Más Popular', 'wpstudio'));
-    });
+    ob_start();
+?>
+    <div class="servicios-grid">
+        <?php foreach ($servicios as $servicio) :
+            $id              = $servicio->ID;
+            $precio          = get_field('precio', $id);
+            $icono           = get_field('icono', $id);
+            $destacado       = get_field('destacado', $id);
+            $caracteristicas = array_filter(array(
+                get_field('caracteristica_1', $id),
+                get_field('caracteristica_2', $id),
+                get_field('caracteristica_3', $id),
+                get_field('caracteristica_4', $id),
+            ));
+        ?>
+            <div class="wp-block-group is-style-price-card is-style-border-accent">
 
-    // [servicio_link] -> permalink of the current "servicio" post.
-    add_shortcode('servicio_link', function () {
-        return esc_url(get_permalink());
-    });
+                <?php if ($icono) : ?>
+                    <div class="price-card-icon">
+                        <img src="<?php echo esc_url($icono); ?>" alt="" width="40" height="40" loading="lazy" />
+                    </div>
+                <?php endif; ?>
+
+                <div class="price-card-header">
+                    <h3 class="price-card-title"><?php echo esc_html(get_the_title($id)); ?></h3>
+                    <?php if ($destacado) : ?>
+                        <span class="price-card-badge"><?php esc_html_e('Más Popular', 'wpstudio'); ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <p class="price-card-price has-max-48-font-size"><?php echo esc_html($precio); ?>€</p>
+
+                <hr class="price-card-divider" />
+
+                <?php if ($caracteristicas) : ?>
+                    <ul class="wp-block-list is-style-check-list">
+                        <?php foreach ($caracteristicas as $caracteristica) : ?>
+                            <li><?php echo esc_html($caracteristica); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+
+                <div class="wp-block-buttons">
+                    <div class="wp-block-button is-style-icon-arrow">
+                        <a class="wp-block-button__link wp-element-button" href="<?php echo esc_url(get_permalink($id)); ?>">
+                            <?php esc_html_e('Me interesa', 'wpstudio'); ?>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php
+    return ob_get_clean();
 }
-add_action('init', 'wpstudio_register_acf_shortcodes');
