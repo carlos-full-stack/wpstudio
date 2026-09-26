@@ -1,0 +1,15 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wpstudio/faq-servicio",
+  "title": "FAQs del servicio",
+  "category": "theme",
+  "description": "Pinta las 4 preguntas/respuestas del CPT Servicio actual, reutilizando el estilo del patrón wpstudio/faq.",
+  "usesContext": ["postId", "postType"],
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"]
+  },
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php"
+}

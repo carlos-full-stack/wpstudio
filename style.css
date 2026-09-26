@@ -84,6 +84,13 @@ Version: 1.0.0
   width: 100%;
 }
 
+/* -- FAQ Servicio -- */
+/* El bloque wpstudio/faq-servicio no soporta "layout", así que no recibe
+   automáticamente el margen entre hijos que sí genera core/group (is-layout-flow). */
+.wp-faq-accordion > .wp-faq-item + .wp-faq-item {
+  margin-top: var(--wp--style--block-gap, var(--wp--custom--spacing--gap));
+}
+
 /* -- Price Card -- */
 
 .wp-block-group.is-style-price-card {
@@ -186,6 +193,12 @@ Version: 1.0.0
 .is-circle svg {
   height: 50%;
   width: 50%;
+}
+
+/* -- Steps -- */
+
+.wp-step-item {
+  align-items: flex-start;
 }
 
 /* -- FAQ Accordion -- */
