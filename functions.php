@@ -85,6 +85,18 @@ function wpstudio_enqueue_faq_accordion_script()
     );
 }
 
+// Activar shortcode ACF.
+add_action('acf/init', function () {
+    acf_update_setting('enable_shortcode', true);
+});
+
+// Permitir el shortcode en bloques de temas de bloques.
+add_filter('acf/shortcode/allow_in_block_themes_outside_content', '__return_true');
+
+// Incluye functions-faq-servicio
+require_once get_theme_file_path('inc/functions-faq-servicio.php');
+
+
 /**
  * [servicios_price_cards] -> loops the "diseno-web" CPT and renders a price
  * card per post with its ACF fields (precio, caracteristica_1-4, icono, destacado).
