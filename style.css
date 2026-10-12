@@ -1,11 +1,102 @@
 /*
-Theme Name: WP Studio
-Description: WP Studio
+Theme Name: wpstudio
+Description: wpstudio
 Author: Carlos Martinez
 Author URI: https://wpstudio.es/
 Template: frost
+Text Domain: wpstudio
 Version: 1.0.0
 */
+
+/* -- Scroll animations --  */
+/* Uso: añadir clases en "Clases CSS adicionales": animate animate-fade-up
+   [animate-duration-X] [animate-delay-X] [animate-repeat] */
+
+.animate {
+  opacity: 0;
+  transition-property: opacity, transform;
+  transition-duration: var(--animate-duration, 600ms);
+  transition-timing-function: var(--animate-easing, ease-out);
+  transition-delay: var(--animate-delay, 0ms);
+}
+
+.animate.is-inview {
+  opacity: 1;
+  transform: none;
+}
+
+.animate-fade-up {
+  transform: translate3d(0, 10px, 0);
+}
+
+.animate-fade-down {
+  transform: translate3d(0, -10px, 0);
+}
+
+.animate-zoom-in {
+  transform: scale(0.92);
+  --animate-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.animate-duration-200 {
+  --animate-duration: 200ms;
+}
+
+.animate-duration-400 {
+  --animate-duration: 400ms;
+}
+
+.animate-duration-600 {
+  --animate-duration: 600ms;
+}
+
+.animate-duration-800 {
+  --animate-duration: 800ms;
+}
+
+.animate-duration-1000 {
+  --animate-duration: 1000ms;
+}
+
+.animate-delay-100 {
+  --animate-delay: 100ms;
+}
+
+.animate-delay-200 {
+  --animate-delay: 200ms;
+}
+
+.animate-delay-300 {
+  --animate-delay: 300ms;
+}
+
+.animate-delay-400 {
+  --animate-delay: 400ms;
+}
+
+.animate-delay-500 {
+  --animate-delay: 500ms;
+}
+
+.animate-delay-600 {
+  --animate-delay: 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* -- Site logo --  */
+
+.custom-logo-link {
+  display: block;
+  max-width: 240px;
+  width: 100%;
+}
 
 /* -- Button -- */
 
@@ -45,16 +136,44 @@ Version: 1.0.0
   transform: translateX(4px);
 }
 
+.is-style-chip {
+  display: inline-flex;
+  padding: 0.25rem 1.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--wp--preset--color--primary);
+  background: white;
+  color: var(--wp--preset--color--contrast);
+  font-size: var(--wp--preset--font-size--small);
+}
+
 /* -- List -- */
 
 .wp-block-list.is-style-check-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
   list-style: none;
   padding-left: 0;
+  flex-grow: 1;
 }
 
 .wp-block-list.is-style-check-list li {
+  display: flex;
+  flex-direction: column;
   padding-left: 28px;
   position: relative;
+}
+
+.wp-block-list.is-style-check-list li .price-card-feature-title {
+  display: block;
+  font-weight: var(--wp--custom--font-weight--medium);
+  line-height: var(--wp--custom--line-height--one);
+}
+
+.wp-block-list.is-style-check-list li .price-card-feature-description {
+  color: var(--wp--preset--color--primary);
+  display: block;
+  font-size: var(--wp--preset--font-size--x-small);
 }
 
 .wp-block-list.is-style-check-list li::before {
@@ -131,6 +250,10 @@ Version: 1.0.0
   margin: 0;
 }
 
+.price-card-iva {
+  font-size: var(--wp--preset--font-size--x-small);
+}
+
 .price-card-divider {
   border: none;
   border-top: 1px solid var(--wp--preset--color--cream-hover);
@@ -145,6 +268,16 @@ Version: 1.0.0
   font-size: var(--wp--preset--font-size--x-small);
   text-transform: uppercase;
   padding: 6px 14px;
+}
+
+/* -- Cards equal hight -- */
+.is-style-equal-hight {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.is-style-equal-hight > .wp-block-group {
+  flex-grow: 1 !important;
 }
 
 /* -- Box Shadow -- */
@@ -253,12 +386,24 @@ Version: 1.0.0
 ---------------------------------------- */
 
 @media only screen and (max-width: 600px) {
+  /* -- Site logo --  */
+
+  .custom-logo-link {
+    max-width: 200px;
+  }
+
   /* -- Button -- */
 
   .wp-block-button .wp-block-button__link {
     font-size: var(--wp--preset--font-size--x-small);
     padding-left: 20px;
     padding-right: 20px;
+  }
+
+  /* -- Chip -- */
+
+  .is-style-chip {
+    font-size: var(--wp--preset--font-size--x-small);
   }
 
   /* -- Column reverse -- */
