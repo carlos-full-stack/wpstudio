@@ -33,10 +33,11 @@ function wpstudio_enqueue_stylesheet()
 function wpstudio_register_block_styles()
 {
 
+    // Los iconos del botón (is-style-icon-arrow, is-style-icon-whatsapp) NO se
+    // registran aquí: Gutenberg solo permite un "Style" activo a la vez, así que
+    // registrarlos como block style impediría combinarlos con Relleno/Contorno.
+    // Se añaden a mano en "Clases CSS adicionales" (ver style.css).
     $block_styles = array(
-        'core/button' => array(
-            'icon-arrow' => __('Con flecha', 'wpstudio'),
-        ),
         'core/group' => array(
             'shadow-accent' => __('Accent', 'wpstudio'),
             'price-card' => __('Price Card', 'wpstudio'),
@@ -221,7 +222,7 @@ function wpstudio_register_servicios_price_cards_shortcode()
 }
 add_action('init', 'wpstudio_register_servicios_price_cards_shortcode');
 
-function wpstudio_render_servicios_price_cards()
+function wpstudio_render_servicios_price_cards($atts)
 {
 
     // ACF must be active; fail silently otherwise (no fatal on sites without it).
@@ -229,22 +230,43 @@ function wpstudio_render_servicios_price_cards()
         return '';
     }
 
-    $servicios = get_posts(array(
-        'post_type'      => 'diseno-web',
-        'posts_per_page' => -1,
-        'orderby'        => 'menu_order',
-        'order'          => 'ASC',
-    ));
+    $atts = shortcode_atts(array(
+        'ids'   => '',
+        'slugs' => '',
+    ), $atts);
 
-    if (! $servicios) {
+    $servicios_ids = array();
+
+    if ($atts['ids']) {
+        // Respeta el orden de IDs indicado en el shortcode, no el orden de la consulta.
+        $servicios_ids = array_map('intval', array_filter(array_map('trim', explode(',', $atts['ids']))));
+    } elseif ($atts['slugs']) {
+        // Respeta el orden de slugs indicado en el shortcode.
+        foreach (array_filter(array_map('trim', explode(',', $atts['slugs']))) as $slug) {
+            $post = get_page_by_path($slug, OBJECT, 'diseno-web');
+            if ($post) {
+                $servicios_ids[] = $post->ID;
+            }
+        }
+    } else {
+        $servicios     = get_posts(array(
+            'post_type'      => 'diseno-web',
+            'posts_per_page' => -1,
+            'orderby'        => 'menu_order',
+            'order'          => 'ASC',
+        ));
+        $servicios_ids = wp_list_pluck($servicios, 'ID');
+    }
+
+    if (! $servicios_ids) {
         return '';
     }
 
     ob_start();
 ?>
     <div class="servicios-grid">
-        <?php foreach ($servicios as $servicio) : ?>
-            <?php echo wpstudio_render_price_card($servicio->ID); ?>
+        <?php foreach ($servicios_ids as $servicio_id) : ?>
+            <?php echo wpstudio_render_price_card($servicio_id); ?>
         <?php endforeach; ?>
     </div>
 <?php
@@ -362,4 +384,69 @@ function wpstudio_render_price_card($id)
 <?php
     // Quita los saltos de línea (no solo entre tags) para que wpautop no los convierta en <br>.
     return preg_replace('/\s*\n\s*/', '', ob_get_clean());
+}
+
+/**
+ * Botón flotante de WhatsApp.
+ * Visible solo en la portada y en la página individual de cada servicio
+ * (CPT "diseno-web"); usa el filtro "wpstudio_whatsapp_cta_display" para
+ * cambiar fácilmente en qué páginas aparece en el futuro.
+ *
+ * @since 1.0.0
+ */
+function wpstudio_whatsapp_cta_should_display()
+{
+
+    return (bool) apply_filters('wpstudio_whatsapp_cta_display', is_front_page() || is_singular('diseno-web'));
+}
+
+add_action('wp_enqueue_scripts', 'wpstudio_enqueue_whatsapp_cta_script');
+function wpstudio_enqueue_whatsapp_cta_script()
+{
+
+    if (! wpstudio_whatsapp_cta_should_display()) {
+        return;
+    }
+
+    wp_enqueue_script(
+        'wpstudio-whatsapp-cta',
+        get_stylesheet_directory_uri() . '/assets/js/whatsapp-cta.js',
+        array(),
+        filemtime(get_stylesheet_directory() . '/assets/js/whatsapp-cta.js'),
+        true
+    );
+}
+
+add_action('wp_footer', 'wpstudio_render_whatsapp_cta');
+function wpstudio_render_whatsapp_cta()
+{
+
+    if (! wpstudio_whatsapp_cta_should_display()) {
+        return;
+    }
+
+    // Número de WhatsApp: cambia el filtro para usar otro en el futuro.
+    $numero = apply_filters('wpstudio_whatsapp_cta_number', '34694908071');
+
+    if (is_singular('diseno-web')) {
+        // Mensaje sin género ("el servicio de X" en lugar de "un/una X").
+        $mensaje = sprintf(
+            /* translators: %s: nombre del servicio */
+            __('Hola Carlos, tengo interés en el servicio de %s', 'wpstudio'),
+            get_the_title()
+        );
+    } else {
+        $mensaje = __('Hola Carlos, he visto tu web y me gustaría hablar de mi proyecto', 'wpstudio');
+    }
+
+    $mensaje = apply_filters('wpstudio_whatsapp_cta_message', $mensaje);
+    $enlace  = 'https://wa.me/' . $numero . '?text=' . rawurlencode($mensaje);
+?>
+    <a href="<?php echo esc_url($enlace); ?>" class="wpstudio-whatsapp-cta" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e('Contactar por WhatsApp', 'wpstudio'); ?>">
+        <svg width="22" height="22" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.248c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.337-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
+        </svg>
+        <span><?php esc_html_e('WhatsApp', 'wpstudio'); ?></span>
+    </a>
+<?php
 }
