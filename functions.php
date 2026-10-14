@@ -196,7 +196,7 @@ add_shortcode('svg_hero_services', function ($atts) {
 });
 
 // Incluye functions-faq-servicio
-require_once get_theme_file_path('inc/functions-faq-servicio.php');
+require_once get_stylesheet_directory() . '/inc/functions-faq-servicio.php';
 
 add_action('init', function () {
     register_block_style(
