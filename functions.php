@@ -377,7 +377,9 @@ function wpstudio_render_price_card($id)
 
         <?php if ($icono) : ?>
             <div class="price-card-icon">
-                <?php if (str_starts_with(trim($icono), '<svg')) : ?>
+                <?php if (str_contains($icono, '<svg')) : ?>
+                    <?php // El campo ACF puede envolver el SVG en <p> si "New Lines" usa wpautop; wp_kses lo retira al no estar permitido. 
+                    ?>
                     <?php echo wp_kses($icono, wpstudio_allowed_svg_tags()); ?>
                 <?php else : ?>
                     <img src="<?php echo esc_url($icono); ?>" alt="" width="40" height="40" loading="lazy" />
