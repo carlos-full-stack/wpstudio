@@ -177,8 +177,10 @@ Version: 1.0.0
    combinable con is-style-outline porque no es un block style registrado):
    is-style-icon-arrow (flecha después del texto), is-style-icon-whatsapp (icono antes del texto).
    También se puede aplicar directamente sobre un enlace <a> suelto. */
-.wp-block-button[class*="is-style-icon-"] .wp-block-button__link,
-a[class*="is-style-icon-"] {
+.wp-block-button.is-style-icon-arrow .wp-block-button__link::after,
+a.is-style-icon-arrow::after,
+.wp-block-post-excerpt.is-style-icon-arrow
+  .wp-block-post-excerpt__more-link::after {
   align-items: center;
   display: inline-flex;
   gap: 8px;
