@@ -314,6 +314,39 @@ function wpstudio_render_servicio_price_card_shortcode($atts)
 }
 
 /**
+ * Etiquetas/atributos SVG permitidos al imprimir el código pegado en el campo
+ * ACF "icono" (textarea), para evitar que wp_kses lo vacíe.
+ *
+ * @since 1.0.0
+ */
+function wpstudio_allowed_svg_tags()
+{
+    return array(
+        'svg'  => array(
+            'xmlns'       => true,
+            'width'       => true,
+            'height'      => true,
+            'viewbox'     => true,
+            'fill'        => true,
+            'stroke'      => true,
+            'stroke-width' => true,
+            'class'       => true,
+        ),
+        'path' => array(
+            'd'              => true,
+            'fill'           => true,
+            'stroke'         => true,
+            'stroke-width'   => true,
+            'stroke-linecap' => true,
+            'stroke-linejoin' => true,
+        ),
+        'g'      => array('fill' => true, 'stroke' => true),
+        'circle' => array('cx' => true, 'cy' => true, 'r' => true, 'fill' => true, 'stroke' => true),
+        'rect'   => array('x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'fill' => true, 'stroke' => true),
+    );
+}
+
+/**
  * Renderiza el markup de una price card a partir del ID de un post "diseno-web".
  *
  * @since 1.0.0
@@ -344,7 +377,11 @@ function wpstudio_render_price_card($id)
 
         <?php if ($icono) : ?>
             <div class="price-card-icon">
-                <img src="<?php echo esc_url($icono); ?>" alt="" width="40" height="40" loading="lazy" />
+                <?php if (str_starts_with(trim($icono), '<svg')) : ?>
+                    <?php echo wp_kses($icono, wpstudio_allowed_svg_tags()); ?>
+                <?php else : ?>
+                    <img src="<?php echo esc_url($icono); ?>" alt="" width="40" height="40" loading="lazy" />
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
