@@ -516,4 +516,11 @@ a.is-style-icon-whatsapp::before {
   .wpstudio-whatsapp-cta span {
     font-size: var(--wp--preset--font-size--x-small);
   }
+
+    /* -- Center text in mobile -- */
+
+ .text-centered-mobile {
+    text-align: center;
+  }
+
 }
