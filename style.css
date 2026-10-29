@@ -385,7 +385,9 @@ a.is-style-icon-whatsapp::before {
 
 /* Reusable border (top/left none, right/bottom 1px accent), e.g. "is-style-border-accent" */
 .wp-block-group.is-style-border-accent,
-.wp-block-details.is-style-border-accent {
+.wp-block-group.is-style-border-accent,
+.wp-block-details.is-style-border-accent,
+.wp-block-wpstudio-forms-contact-form.is-style-border-accent {
   border-color: var(--wp--preset--color--accent);
   border-style: solid;
   border-width: 0 1px 1px 0;
@@ -517,10 +519,9 @@ a.is-style-icon-whatsapp::before {
     font-size: var(--wp--preset--font-size--x-small);
   }
 
-    /* -- Center text in mobile -- */
+  /* -- Center text in mobile -- */
 
- .text-centered-mobile {
+  .text-centered-mobile {
     text-align: center;
   }
-
 }
