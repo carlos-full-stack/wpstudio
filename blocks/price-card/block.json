@@ -1,0 +1,49 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "wpstudio/price-card",
+	"title": "Price Card",
+	"category": "common",
+	"icon": "tag",
+	"description": "Card de precio flexible para cualquier página",
+	"keywords": [ "price", "card", "pricing" ],
+	"textdomain": "wpstudio",
+	"supports": {
+		"html": false,
+		"align": false
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style.css",
+	"attributes": {
+		"title": {
+			"type": "string",
+			"default": "Nombre del servicio"
+		},
+		"price": {
+			"type": "string",
+			"default": "599"
+		},
+		"icon": {
+			"type": "string",
+			"default": ""
+		},
+		"badge": {
+			"type": "boolean",
+			"default": false
+		},
+		"features": {
+			"type": "array",
+			"default": [
+				{
+					"titulo": "Característica 1",
+					"descripcion": ""
+				}
+			]
+		},
+		"buttonUrl": {
+			"type": "string",
+			"default": "#contacto"
+		}
+	}
+}
