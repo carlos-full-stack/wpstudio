@@ -1,0 +1,23 @@
+/* Price Card Editor Styles */
+
+.wp-block-wpstudio-price-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+.wp-block-wpstudio-price-card .price-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wp-block-wpstudio-price-card .price-card-title {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.wp-block-wpstudio-price-card .price-card-badge {
+  flex-shrink: 0;
+}

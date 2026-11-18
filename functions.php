@@ -198,6 +198,9 @@ add_shortcode('svg_hero_services', function ($atts) {
 // Incluye functions-faq-servicio
 require_once get_stylesheet_directory() . '/inc/functions-faq-servicio.php';
 
+// Incluye functions-price-card
+require_once get_stylesheet_directory() . '/inc/functions-price-card.php';
+
 add_action('init', function () {
     register_block_style(
         'core/paragraph',
@@ -347,13 +350,86 @@ function wpstudio_allowed_svg_tags()
 }
 
 /**
+ * Renderiza el markup genérico de una price card a partir de un array de datos.
+ *
+ * @since 1.0.0
+ * @param array $data {
+ *     @type string $title        Título de la card
+ *     @type string $price        Precio (sin símbolo de moneda)
+ *     @type string $icon         URL de imagen o SVG HTML
+ *     @type bool   $badge        Si debe mostrar "Más Popular"
+ *     @type array  $features     Array de características, cada una con 'titulo' y 'descripcion'
+ *     @type string $button_url   URL del botón "Me interesa" (default: vacío)
+ * }
+ * @return string Markup HTML de la price card
+ */
+function wpstudio_render_generic_price_card($data)
+{
+    $title       = isset($data['title']) ? $data['title'] : '';
+    $price       = isset($data['price']) ? $data['price'] : '';
+    $icon        = isset($data['icon']) ? $data['icon'] : '';
+    $badge       = isset($data['badge']) ? $data['badge'] : false;
+    $features    = isset($data['features']) && is_array($data['features']) ? $data['features'] : array();
+    $button_url  = isset($data['button_url']) ? $data['button_url'] : '';
+
+    ob_start();
+?>
+    <div class="wp-block-group is-style-price-card is-style-border-accent">
+
+        <?php if ($icon) : ?>
+            <div class="price-card-icon">
+                <?php if (str_contains($icon, '<svg')) : ?>
+                    <?php echo wp_kses($icon, wpstudio_allowed_svg_tags()); ?>
+                <?php else : ?>
+                    <img src="<?php echo esc_url($icon); ?>" alt="" width="40" height="40" loading="lazy" />
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="price-card-header">
+            <h4 class="price-card-title"><?php echo esc_html($title); ?></h4>
+            <?php if ($badge) : ?>
+                <span class="price-card-badge"><?php esc_html_e('Más Popular', 'wpstudio'); ?></span>
+            <?php endif; ?>
+        </div>
+
+        <p class="price-card-price has-max-48-font-size"><?php echo esc_html($price); ?>€ <span class="price-card-iva"><?php esc_html_e('+ IVA', 'wpstudio'); ?></span></p>
+
+        <hr class="price-card-divider" />
+
+        <?php if ($features) : ?>
+            <ul class="wp-block-list is-style-check-list">
+                <?php foreach ($features as $feature) : ?>
+                    <li>
+                        <span class="price-card-feature-title"><?php echo esc_html($feature['titulo']); ?></span>
+                        <?php if (!empty($feature['descripcion'])) : ?>
+                            <span class="price-card-feature-description"><?php echo esc_html($feature['descripcion']); ?></span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+
+        <div class="wp-block-buttons">
+            <div class="wp-block-button is-style-icon-arrow">
+                <a class="wp-block-button__link wp-element-button" href="<?php echo esc_url($button_url); ?>">
+                    <?php esc_html_e('Me interesa', 'wpstudio'); ?>
+                </a>
+            </div>
+        </div>
+
+    </div>
+<?php
+    return preg_replace('/\s*\n\s*/', '', ob_get_clean());
+}
+
+/**
  * Renderiza el markup de una price card a partir del ID de un post "diseno-web".
  *
  * @since 1.0.0
  */
 function wpstudio_render_price_card($id)
 {
-
     $precio          = get_field('precio', $id);
     $icono           = get_field('icono', $id);
     $destacado       = get_field('destacado', $id);
@@ -371,58 +447,16 @@ function wpstudio_render_price_card($id)
         );
     }
 
-    ob_start();
-?>
-    <div class="wp-block-group is-style-price-card is-style-border-accent">
+    $data = array(
+        'title'      => get_the_title($id),
+        'price'      => $precio,
+        'icon'       => $icono,
+        'badge'      => (bool) $destacado,
+        'features'   => $caracteristicas,
+        'button_url' => get_permalink($id),
+    );
 
-        <?php if ($icono) : ?>
-            <div class="price-card-icon">
-                <?php if (str_contains($icono, '<svg')) : ?>
-                    <?php // El campo ACF puede envolver el SVG en <p> si "New Lines" usa wpautop; wp_kses lo retira al no estar permitido. 
-                    ?>
-                    <?php echo wp_kses($icono, wpstudio_allowed_svg_tags()); ?>
-                <?php else : ?>
-                    <img src="<?php echo esc_url($icono); ?>" alt="" width="40" height="40" loading="lazy" />
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="price-card-header">
-            <h4 class="price-card-title"><?php echo esc_html(get_the_title($id)); ?></h3>
-                <?php if ($destacado) : ?>
-                    <span class="price-card-badge"><?php esc_html_e('Más Popular', 'wpstudio'); ?></span>
-                <?php endif; ?>
-        </div>
-
-        <p class="price-card-price has-max-48-font-size"><?php echo esc_html($precio); ?>€ <span class="price-card-iva"><?php esc_html_e('+ IVA', 'wpstudio'); ?></span></p>
-
-        <hr class="price-card-divider" />
-
-        <?php if ($caracteristicas) : ?>
-            <ul class="wp-block-list is-style-check-list">
-                <?php foreach ($caracteristicas as $caracteristica) : ?>
-                    <li>
-                        <span class="price-card-feature-title"><?php echo esc_html($caracteristica['titulo']); ?></span>
-                        <?php if ($caracteristica['descripcion']) : ?>
-                            <span class="price-card-feature-description"><?php echo esc_html($caracteristica['descripcion']); ?></span>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-
-        <div class="wp-block-buttons">
-            <div class="wp-block-button is-style-icon-arrow">
-                <a class="wp-block-button__link wp-element-button" href="<?php echo esc_url(get_permalink($id)); ?>">
-                    <?php esc_html_e('Me interesa', 'wpstudio'); ?>
-                </a>
-            </div>
-        </div>
-
-    </div>
-<?php
-    // Quita los saltos de línea (no solo entre tags) para que wpautop no los convierta en <br>.
-    return preg_replace('/\s*\n\s*/', '', ob_get_clean());
+    return wpstudio_render_generic_price_card($data);
 }
 
 /**
@@ -489,3 +523,6 @@ function wpstudio_render_whatsapp_cta()
     </a>
 <?php
 }
+
+// Load Price Card block registration
+require_once get_theme_file_path('inc/functions-price-card.php');
